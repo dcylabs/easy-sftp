@@ -1,0 +1,36 @@
+#!/usr/bin/python
+import json , pwd , grp , os, sys, getopt
+
+config_file = 'sftp-users.json'
+mopts, margs = getopt.getopt(sys.argv[1:],"i:o:")
+
+for opt, arg in mopts:
+    if opt == '-i':
+        config_file=arg
+    else:
+        print("Usage: %s -i /path/to/sftp-users.json" % sys.argv[0])
+
+
+users = json.load(open(config_file))
+
+
+for group in grp.getgrall(): 
+	if group[0] == 'filetransfer':
+		gid = group[2]
+
+
+for user in pwd.getpwall():
+	if user[3] == gid: 
+		print '[-] Removing user %s ' % user[0]
+		os.system('deluser -q %s' % user[0])
+
+
+for user in users: 
+	try:
+		pwd.getpwnam(user['name'])
+		print '[!] User %s already exists' % user['name']
+	except KeyError:
+		print '[+] Creating user %s ' % user['name']
+		os.system('useradd -g filetransfer -d /data -s /sbin/nologin -p $(openssl passwd -1 %s) %s' % (user['password'],user['name']))
+		os.system('mkdir -p /sftp/%s/data' % user['name'])
+		os.system('chown %s:filetransfer /sftp/%s/data' % (user['name'],user['name']))
