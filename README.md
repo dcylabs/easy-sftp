@@ -2,7 +2,11 @@
 ## Deployment 
 ### Docker 
 ```
-docker run -d -v /path/to/sftp-config.json:/config/sftp-config.json:ro -v ./data/user1:/sftp/user1/data -v ./data/user2:/sftp/user2/data -p "22:22" dcylabs/easy-sftp
+docker run -d \
+ -v /path/to/sftp-users.json:/config/sftp-users.json:ro \
+ -v ./data/user1:/sftp/user1/data \
+ -v ./data/user2:/sftp/user2/data \
+ -p "22:22" dcylabs/easy-sftp
 ```
 ### docker-compose.yml 
 ```
